@@ -5,10 +5,10 @@
 #![reexport_test_harness_main = "test_main"]
 
 
-mod vga_buffer;
 mod serial;
 
 use core::panic::PanicInfo;
+use blog_os::println;
 
 pub trait Testable {
     fn run(&self) -> ();
@@ -52,20 +52,28 @@ fn panic(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    serial_println!("[failed]\n");
-    serial_println!("Error: {}\n", info);
-    exit_qemu(QemuExitCode::Failed);
-    loop {}
+    blog_os::test_panic_handler(info)
 }
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
+    blog_os::init();
+    println!("IDT initialized!");
+
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3();
+    println!("Breakpoint handled!");
+
+    // as before
     #[cfg(test)]
     test_main();
 
-    loop {}
+    println!("It did not crash!");
+    loop {
+        x86_64::instructions::hlt();
+        }
 }
 
 #[cfg(test)]
