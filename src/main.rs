@@ -60,20 +60,18 @@ pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
     blog_os::init();
-    println!("IDT initialized!");
 
-    // invoke a breakpoint exception
-    x86_64::instructions::interrupts::int3();
-    println!("Breakpoint handled!");
+    fn stack_overflow() {
+        stack_overflow(); // for each recursion, the return address is pushed
+    }
 
-    // as before
+    stack_overflow();
+
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
-    loop {
-        x86_64::instructions::hlt();
-        }
+    loop {}
 }
 
 #[cfg(test)]
