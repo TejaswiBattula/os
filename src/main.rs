@@ -61,21 +61,16 @@ pub extern "C" fn _start() -> ! {
 
     blog_os::init();
 
-//     fn stack_overflow() {
-//         stack_overflow(); // for each recursion, the return address is pushed
-//     }
+    use x86_64::registers::control::Cr3;
 
-    //stack_overflow();
+    let (level_4_page_table, _) = Cr3::read();
+    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
 
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
-//     loop {
-//             use blog_os::print;
-//             print!("-");
-//     }
-blog_os::hlt_loop();
+    blog_os::hlt_loop();
 }
 
 #[cfg(test)]
