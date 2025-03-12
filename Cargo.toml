@@ -5,7 +5,6 @@ authors = ["Tejaswi"]
 edition = "2018"
 
 [dependencies]
-bootloader = "0.9"
 lazy_static = { version = "1.4", features = ["spin_no_std"] }
 spin = "0.5.2"
 volatile = "0.2.6"
@@ -13,6 +12,7 @@ x86_64 = "0.14.2"
 uart_16550 = "0.2.0"
 pic8259 = "0.10.1"
 pc-keyboard = "0.7.0"
+bootloader = { version = "0.9", features = ["map_physical_memory"]}
 
 [package.metadata.bootimage]
 test-args = [
