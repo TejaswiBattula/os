@@ -11,7 +11,9 @@ use core::panic::PanicInfo;
 use blog_os::println;
 use bootloader::{BootInfo, entry_point};
 use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
-
+use blog_os::task::{Task, simple_executor::SimpleExecutor};
+use blog_os::task::keyboard;
+use blog_os::task::executor::Executor;
 
 extern crate alloc;
 
@@ -106,6 +108,11 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         core::mem::drop(reference_counted);
         println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
+    let mut executor = Executor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
+
     // as before
     #[cfg(test)]
     test_main();
@@ -126,4 +133,13 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
 #[test_case]
 fn trivial_assertion() {
     assert_eq!(1, 1);
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
 }
